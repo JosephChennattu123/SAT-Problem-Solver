@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+// first push
 Clause* mkTernaryClause(VarTable* vt, Literal a, Literal b, Literal c) {
     assert(a != 0);
 
