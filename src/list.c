@@ -1,6 +1,7 @@
 #include "list.h"
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "err.h"
@@ -21,35 +22,58 @@ List mkList(void) {
 }
 
 void clearList(List* s) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(s);
+    ListItem* p = s->head;
+    while (p != NULL) {
+        ListItem* n = p->next;
+        free(p);
+
+        p = n;
+    }
+    s->head = NULL;
 }
 
 void push(List* s, void* data) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(s);
-    UNUSED(data);
+    ListItem* p = (ListItem*)malloc(sizeof(ListItem));
+    if (p == NULL) {
+        return;
+    }
+
+    p->data = data;
+    p->next = s->head;
+    s->head = p;
 }
 
 void* peek(List* s) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(s);
+    if (s->head == NULL) {
+        fprintf(stderr, "Stack is empty. Cannot peek.\n");
+        return NULL;
+    }
+
+    return s->head->data;
 }
 
 void pop(List* s) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(s);
+    /*ListItem* p = (ListItem*)malloc(sizeof(ListItem));
+    if (p == NULL) {
+        return;
+    }
+    if (s->head->next == NULL) {
+        s->head = NULL;
+    }
+    p->next = s->head->next;
+    p->data = s->head->next->data;
+    free(s->head);
+    s->head = p;*/
+    char p = isEmpty(s);
+    if (p == '1') {
+        return;
+    }
+    ListItem* q = s->head;
+    s->head = s->head->next;
+    free(q);
 }
 
-char isEmpty(List* s) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(s);
-}
+char isEmpty(List* s) { return s->head == NULL; }
 
 ListIterator mkIterator(List* list) {
     ListIterator res;
