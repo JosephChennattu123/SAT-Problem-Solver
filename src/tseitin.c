@@ -62,7 +62,7 @@ void addTernaryClause(VarTable* vt, CNF* cnf, Literal a, Literal b, Literal c) {
  */
 #include "cnf.h"
 #include "variables.h"
-
+//i used chatgpt and asked it to debug my errors. Also it may have generated some code, while debugging which seemed more effiecient/compacter than mine which i then procedeed to include in my code
 VarIndex addClauses(VarTable* vt, CNF* cnf, const PropFormula* pf) {
     if (pf->kind == VAR) {
         return pf->data.var;
