@@ -38,17 +38,21 @@ PropFormula* mkUnaryFormula(FormulaKind kind, PropFormula* operand) {
 void freeFormula(PropFormula* pf) {
     if (pf == NULL) return;
     if (pf->kind == VAR) {
-        free(pf);
+        ;
     } else {
         if (pf->kind == AND || pf->kind == OR || pf->kind == IMPLIES ||
             pf->kind == EQUIV)  // only working with binary operators
         {
             freeFormula(pf->data.operands[0]);
             freeFormula(pf->data.operands[1]);
+            // free(pf->data.operands[0]);
+            // free(pf->data.operands[1]);
         } else {
             if (pf->kind == NOT) freeFormula(pf->data.single_op);
+            // free(pf->data.single_op);
         }
     }
+    free(pf);
 }
 
 void prettyPrintFormula_impl(FILE* f, VarTable* vt, PropFormula* pf) {
