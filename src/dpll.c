@@ -1,5 +1,6 @@
 #include "dpll.h"
 
+#include "cnf.h"
 #include "err.h"
 #include "list.h"
 #include "util.h"
@@ -62,13 +63,140 @@ void popAssignment(List* stack) {
  *                -1 if the algorithm should terminate with UNSAT
  */
 int iterate(VarTable* vt, List* stack, CNF* cnf) {
-    // TODO Implement me!
-    NOT_IMPLEMENTED;
-    UNUSED(vt);
-    UNUSED(stack);
-    UNUSED(cnf);
+    ListIterator iter = mkIterator(&cnf->clauses);
+    prettyPrintCNF(vt, cnf);
+    while (isValid(&iter) || evalCNF(cnf) != TRUE) {
+        prettyPrintCNF(vt, cnf);
+        Clause* santa = (Clause*)getCurr(&iter);
+        int check = 0;  // used to check if a reset has occured or not
+        if (evalCNF(cnf) == TRUE) {
+            return 1;
+        }
+        if (evalCNF(cnf) == FALSE) {
+            while (isEmpty(stack) == 0 && check == 0) {
+                prettyPrintCNF(vt, cnf);
+                Assignment* stalker = (Assignment*)peek(stack);
+                if (stalker->reason == IMPLIED) {
+                    updateVariableValue(vt, stalker->var, UNDEFINED);
+                    popAssignment(stack);
+                }
+                if (stalker->reason == CHOSEN) {
+                    VarIndex tmp = stalker->var;
+                    popAssignment(stack);
+                    // stalker->reason = IMPLIED;
+                    // TruthValue ppls = getVariableValue(vt, stalker->var);
+                    // if (ppls == TRUE)
+                    updateVariableValue(vt, tmp, FALSE);
+                    // else
+                    // updateVariableValue(vt, stalker->var, TRUE);
+                    pushAssignment(stack, tmp, IMPLIED);
+                    check = 1;
+                    break;
+                }
+            }
+            if (check == 0) return -1;
+        }
+        Literal p = getUnitLiteral(vt, santa);
+        if (p != 0) {
+            prettyPrintCNF(vt, cnf);
+            if (p > 0) {
+                prettyPrintCNF(vt, cnf);
+                updateVariableValue(vt, p, TRUE);
+                pushAssignment(stack, p, IMPLIED);
+            }
+            if (p < 0) {
+                updateVariableValue(vt, -p, FALSE);
+                pushAssignment(stack, -p, IMPLIED);
+            }
+            prettyPrintCNF(vt, cnf);
+        } else {
+            prettyPrintCNF(vt, cnf);
+            VarIndex q = getNextUndefinedVariable(vt);
+            if (q == 0) {
+                return -1;
+            }
+            updateVariableValue(vt, q, TRUE);
+            pushAssignment(stack, q, CHOSEN);
+            prettyPrintCNF(vt, cnf);
+        }
+        next(&iter);
+    }
+    return -1;
 }
+/*{
+    while(1 == 1)
+    {
+     ListIterator iter = mkIterator(&cnf->clauses);
+     TruthValue tv = evalCNF(cnf);
+     if(tv == TRUE)
+        return 1;
+     if(tv == FALSE)
+         if(isEmpty(stack)==0)
 
+    }
+}
+*/
+/*
+ {
+    // TODO Implement me!
+
+    // int checker = 0;
+    VarIndex chap;
+    Assignment* rekt;
+    ListIterator iter = mkIterator((&cnf->clauses));
+    TruthValue chapistik;
+    TruthValue pakka_na = evalCNF(cnf);
+    VarIndex tumblr;
+    while (isValid(&iter) && (pakka_na == FALSE || pakka_na == UNDEFINED)) {
+        Clause* curr = (Clause*)getCurr(&iter);
+        pakka_na = evalCNF(cnf);
+        if (pakka_na == FALSE) {
+            while (isEmpty(stack) == 0) {
+                rekt = (Assignment*)peek(stack);
+                if (rekt->reason == IMPLIED) {
+                    chap = rekt->var;
+                    updateVariableValue(vt, chap, UNDEFINED);
+                    popAssignment(stack);
+                } else if (rekt->reason == CHOSEN) {
+                    rekt->reason = IMPLIED;
+                    chap = rekt->var;
+                    chapistik = getVariableValue(vt, rekt->var);
+                    if (chapistik == TRUE)
+                        updateVariableValue(vt, chap, FALSE);
+                    else if (chapistik == FALSE)
+                        updateVariableValue(vt, chap, TRUE);
+                }
+            }
+        }
+
+        Literal ez = getUnitLiteral(vt, curr);
+        if (ez != 0) {
+            if (ez > 0) {
+                updateVariableValue(vt, ez, TRUE);
+                pushAssignment(stack, ez, IMPLIED);
+            }
+            if (ez < 0) {
+                updateVariableValue(vt, -ez, FALSE);
+                pushAssignment(stack, -ez, IMPLIED);
+            }
+            updateTruthValue(vt, curr);
+            return 0;
+        } else {
+            tumblr = getNextUndefinedVariable(vt);
+            updateVariableValue(vt, tumblr, TRUE);
+            pushAssignment(stack, tumblr, CHOSEN);
+        }
+        pakka_na = evalCNF(cnf);
+        next(&iter);
+    }
+    pakka_na = evalCNF(cnf);
+    if (pakka_na == TRUE) return 1;
+    if (pakka_na == FALSE || pakka_na == UNDEFINED)
+        return -1;
+    else
+        return 0;  // annoyed at shitty wavy yellow line i hope i die
+}
+*/
 char isSatisfiable(VarTable* vt, CNF* cnf) {
     List stack = mkList();
 
