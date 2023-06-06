@@ -34,7 +34,7 @@ PropFormula* mkUnaryFormula(FormulaKind kind, PropFormula* operand) {
 
     return res;
 }
-
+//i used chatgpt by giving it propFormula.h and variable.h and made the adequate changes to the code
 void freeFormula(PropFormula* pf) {
     if (pf == NULL) return;
     if (pf->kind == VAR) {
