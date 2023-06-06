@@ -20,7 +20,7 @@ List mkList(void) {
     res.head = NULL;
     return res;
 }
-
+//Because I was having trouble understanding singly linked list, i asked chat gpt to explain it using pseudo code which after conversion to code was debugged using chatgpt
 void clearList(List* s) {
     ListItem* p = s->head;
     while (p != NULL) {
