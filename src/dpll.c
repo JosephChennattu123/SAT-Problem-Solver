@@ -64,17 +64,12 @@ void popAssignment(List* stack) {
  */
 int iterate(VarTable* vt, List* stack, CNF* cnf) {
     ListIterator iter = mkIterator(&cnf->clauses);
-    prettyPrintCNF(vt, cnf);
-    while (isValid(&iter) || evalCNF(cnf) != TRUE) {
-        prettyPrintCNF(vt, cnf);
+    int check = 0;
+    while (isValid(&iter)) {
         Clause* santa = (Clause*)getCurr(&iter);
-        int check = 0;  // used to check if a reset has occured or not
-        if (evalCNF(cnf) == TRUE) {
-            return 1;
-        }
+        int check = 0;  // used to check if a reset has occured or no
         if (evalCNF(cnf) == FALSE) {
             while (isEmpty(stack) == 0 && check == 0) {
-                prettyPrintCNF(vt, cnf);
                 Assignment* stalker = (Assignment*)peek(stack);
                 if (stalker->reason == IMPLIED) {
                     updateVariableValue(vt, stalker->var, UNDEFINED);
@@ -90,38 +85,41 @@ int iterate(VarTable* vt, List* stack, CNF* cnf) {
                     // else
                     // updateVariableValue(vt, stalker->var, TRUE);
                     pushAssignment(stack, tmp, IMPLIED);
-                    check = 1;
+                    check++;
                     break;
                 }
             }
             if (check == 0) return -1;
+            if (check != 0) return 0;
         }
-        Literal p = getUnitLiteral(vt, santa);
+        Literal p = 0;
+        p = getUnitLiteral(vt, santa);
         if (p != 0) {
             prettyPrintCNF(vt, cnf);
             if (p > 0) {
-                prettyPrintCNF(vt, cnf);
                 updateVariableValue(vt, p, TRUE);
                 pushAssignment(stack, p, IMPLIED);
+                updateTruthValue(vt, santa);
             }
             if (p < 0) {
                 updateVariableValue(vt, -p, FALSE);
                 pushAssignment(stack, -p, IMPLIED);
+                updateTruthValue(vt, santa);
             }
-            prettyPrintCNF(vt, cnf);
-        } else {
-            prettyPrintCNF(vt, cnf);
+        }
+
+        if (p == 0) {
             VarIndex q = getNextUndefinedVariable(vt);
             if (q == 0) {
                 return -1;
             }
             updateVariableValue(vt, q, TRUE);
             pushAssignment(stack, q, CHOSEN);
-            prettyPrintCNF(vt, cnf);
         }
         next(&iter);
     }
-    return -1;
+    TruthValue p = (evalCNF(cnf));
+    if (p == TRUE) return 1;
 }
 /*{
     while(1 == 1)
